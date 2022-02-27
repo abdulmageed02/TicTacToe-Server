@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package controllers;
+package Server;
 
 
 import java.net.ServerSocket;
@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import models.DisplayPlayers;
@@ -26,17 +27,20 @@ public class Server
     public static Database db ;
     public static Vector<Person> players ;
     public static ObservableList<DisplayPlayers> Playerslist=FXCollections.observableArrayList();
-  //public static Vector<JSONObject> savedSessions = new Vector<JSONObject>();
 
     static{
+        players = new Vector<Person>();
         try {
-            players = new Vector<Person>();
             db = new Database();
-            players = db.getPlayers();
-            Playerslist=db.displayPlayers();
         } catch (SQLException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
+        try {
+            players = db.getPlayers();
+        } catch (SQLException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Playerslist=db.displayPlayers();
     }
     public Server() {
         
@@ -54,7 +58,7 @@ public class Server
     
     public static void updateAllPlayersVector(Person p) throws SQLException{
         players.add(p);
-        Playerslist.add(new DisplayPlayers(p.getUsername(),"online"));
+        Playerslist.add(new DisplayPlayers(p.getUsername(),"online",p.getTotal_score()));
     }
     
   public static int SignUp(JSONObject msg) throws SQLException, JSONException{
@@ -107,7 +111,7 @@ public class Server
        return false; 
     }
       
-    public static void updateplayer(String userName, String status) 
+    public static void updateplayer(String userName, String status) throws SQLException 
     {       
         for (Person p : players)
         {
@@ -132,11 +136,12 @@ public class Server
         }
         
     }
-    public static void updateObservablePlayerslist(String userName , String status)
+    public static void updateObservablePlayerslist(String userName , String status) throws SQLException
     {
+        Person p = db.getPlayer(userName);
         for(int i=0 ; i <Playerslist.size();i++){
             if(Playerslist.get(i).getName().equals(userName)){
-                Playerslist.set(i, new DisplayPlayers(userName,status));
+                Playerslist.set(i, new DisplayPlayers(userName,status,p.getTotal_score()));
                 break;
             }
         }

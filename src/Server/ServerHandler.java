@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package controllers;
+package Server;
 
-import static controllers.Server.db;
+
+import static Server.Server.db;
 import models.*;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -48,6 +49,8 @@ public class ServerHandler extends Thread {
                     break;
                 } catch (JSONException ex1) {
                     Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex1);
+                } catch (SQLException ex1) {
+                    Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex1);
                 }
             } catch (SQLException ex){
                 System.out.println("FromSQL");
@@ -58,16 +61,18 @@ public class ServerHandler extends Thread {
         }
     }
     
-    public void closeConnection() throws JSONException 
+    public void closeConnection() throws JSONException, SQLException 
     {
-        System.out.println(loggedPlayer.getUsername() + " Closed connection !");
-        //Server.db.updatePlayerStatus(loggedPlayer.getUsername(), "offline");
-        Server.db.playerClosing(loggedPlayer);
-        Server.updateplayer(loggedPlayer.getUsername(), "offline");
-        JSONObject msg=new JSONObject();
-        msg.put("Action", "playersignout");
-        msg.put("username",loggedPlayer.getUsername());
-        sendMsgToAll(msg);
+        if(loggedPlayer!=null){
+            System.out.println(loggedPlayer.getUsername() + " Closed connection !");
+            Server.db.playerClosing(loggedPlayer);
+            Server.updateplayer(loggedPlayer.getUsername(), "offline");
+            JSONObject msg=new JSONObject();
+            msg.put("Action", "playersignout");
+            msg.put("username",loggedPlayer.getUsername());
+            sendMsgToAll(msg);
+        
+        }
         
         handlers.remove(this);
         try {
@@ -134,7 +139,7 @@ public class ServerHandler extends Thread {
         
     }
 
-    public void changeplayerstatus(String action, String status , JSONObject msgReceived) throws JSONException
+    public void changeplayerstatus(String action, String status , JSONObject msgReceived) throws JSONException, SQLException
     {
         String mode = msgReceived.getString("Mode");
         Server.updateplayer(loggedPlayer.getUsername(),status);

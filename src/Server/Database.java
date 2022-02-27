@@ -1,4 +1,4 @@
-package controllers;
+package Server;
 
 import models.*;
 import java.sql.*;
@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Vector;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Button;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -71,6 +70,7 @@ public class Database {
         rs = stmt.executeQuery(queryString);
         rs.next();
         Person p = createPerson(rs);
+        conn.close();
         return p ;
     }
    
@@ -512,7 +512,8 @@ public class Database {
             update.setString(2, username);
             update.executeUpdate();
             update.close();
-             conn.close();
+            conn.close();
+            
         } catch (SQLException ex) {
             ex.printStackTrace();
             return false;
