@@ -52,6 +52,7 @@ public class ServerController implements Initializable {
      
      public void fillList()
     {
+        Server.Playerslist = Server.db.displayPlayers();
         tableView.setItems(Server.Playerslist);
         tableView.setVisible(true);
        
