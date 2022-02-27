@@ -40,7 +40,12 @@ public class ServerHandler extends Thread {
     public void run() {
         while (true) {
             try {
-                JSONObject msg = new JSONObject(inputStream.readLine()) ;
+                String response = inputStream.readLine();
+                        if(response==null){
+                            System.out.println("Server Close");
+                            closeConnection();
+                        }
+                JSONObject msg = new JSONObject(response) ;
                 processMessage(msg);            
             } catch (IOException ex) {
                 
@@ -248,6 +253,7 @@ public class ServerHandler extends Thread {
             reply.put("status", "online");
             reply.put("Content",loggedPlayer.getUsername()+" joined the room .");
             reply.put("username", loggedPlayer.getUsername());
+            System.out.print("Signing Up Player :" +loggedPlayer.getUsername());
             sendMsgToAll(reply);
         }
         sendResponse("SignUp", flag);
@@ -303,10 +309,16 @@ public class ServerHandler extends Thread {
 
     void sendMsgToAll(JSONObject msg) 
     {
-        for (ServerHandler sh : handlers) {
-            if(!sh.loggedPlayer.getUsername().equals(loggedPlayer.getUsername()))
-               sh.printStream.println(msg.toString());
-        }
+        for (ServerHandler sh : handlers) 
+        {
+            if(sh.loggedPlayer != null)
+            {
+                if(!sh.loggedPlayer.getUsername().equals(loggedPlayer.getUsername()))
+                    sh.printStream.println(msg.toString());
+            }
+            
+         }
+            
     }
     
     void broadcastMsg(JSONObject msg) 
